@@ -1,29 +1,12 @@
 import { memo, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store';
 import {
-    AppState,
-    createAppSelector,
-    useAppDispatch,
-    useAppSelector,
+    selectSelectedUserId,
+    selectSortedUsers,
     UserId,
     UserRemoveSelectedAction,
     UserSelectedAction,
-} from './store';
-
-const selectSortedUsers = createAppSelector(
-    (state: AppState) => state.users.ids,
-    (state: AppState) => state.users.entities,
-    (_: AppState, sort: 'asc' | 'desc') => sort,
-    (ids, entities, sort) =>
-        ids
-            .map(id => entities[id])
-            .sort((a, b) => {
-                if (sort === 'asc') {
-                    return a.name.localeCompare(b.name);
-                } else {
-                    return b.name.localeCompare(a.name);
-                }
-            }),
-);
+} from './users.slice';
 
 export function UsersList() {
     const [sortType, setSortType] = useState<'asc' | 'desc'>('asc');
@@ -32,7 +15,7 @@ export function UsersList() {
         selectSortedUsers(state, sortType),
     );
 
-    const selectedUserId = useAppSelector(state => state.users.selectedUserId);
+    const selectedUserId = useAppSelector(selectSelectedUserId);
 
     return (
         <div className="wrapper">
