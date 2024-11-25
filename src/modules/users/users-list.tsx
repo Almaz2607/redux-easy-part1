@@ -1,41 +1,17 @@
 import { memo, useState } from 'react';
-import {
-    AppState,
-    createAppSelector,
-    useAppDispatch,
-    useAppSelector,
-} from '../../store';
-import {
-    selectSelectedUserId,
-    UserId,
-    UserRemoveSelectedAction,
-    UserSelectedAction,
-} from './users.slice';
-
-const selectSortedUsers = createAppSelector(
-    (state: AppState) => state.users.ids,
-    (state: AppState) => state.users.entities,
-    (_: AppState, sort: 'asc' | 'desc') => sort,
-    (ids, entities, sort) =>
-        ids
-            .map(id => entities[id])
-            .sort((a, b) => {
-                if (sort === 'asc') {
-                    return a.name.localeCompare(b.name);
-                } else {
-                    return b.name.localeCompare(a.name);
-                }
-            }),
-);
+import { useAppDispatch, useAppSelector } from '../../store';
+import { UserId, usersSlice } from './users.slice';
 
 export function UsersList() {
     const [sortType, setSortType] = useState<'asc' | 'desc'>('asc');
 
     const sortedUsers = useAppSelector(state =>
-        selectSortedUsers(state, sortType),
+        usersSlice.selectors.selectSortedUsers(state, sortType),
     );
 
-    const selectedUserId = useAppSelector(selectSelectedUserId);
+    const selectedUserId = useAppSelector(
+        usersSlice.selectors.selectSelectedUserId,
+    );
 
     return (
         <div className="wrapper">
@@ -69,10 +45,7 @@ const UserListItem = memo(function UserListItem({
     const dispatch = useAppDispatch();
 
     const handleUserClick = () => {
-        dispatch({
-            type: 'userSelected',
-            payload: { userId: user.id },
-        } satisfies UserSelectedAction);
+        dispatch(usersSlice.actions.selected({ userId }));
     };
 
     return (
@@ -87,9 +60,7 @@ function SelectedUser({ userId }: { userId: UserId }) {
     const dispatch = useAppDispatch();
 
     const handleBackButtonClick = () => {
-        dispatch({
-            type: 'userRemoveSelected',
-        } satisfies UserRemoveSelectedAction);
+        dispatch(usersSlice.actions.selectRemove());
     };
 
     return (
