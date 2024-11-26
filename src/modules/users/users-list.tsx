@@ -1,14 +1,35 @@
 import { memo, useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../store';
+import { useAppDispatch, useAppSelector, useAppStore } from '../../store';
 import { UserId, usersSlice } from './users.slice';
 import { api } from '../../shared/api';
+import { useDispatch } from 'react-redux';
 
 export function UsersList() {
     const [sortType, setSortType] = useState<'asc' | 'desc'>('asc');
+    const dispatch = useDispatch();
+    const appStore = useAppStore();
+
+    const isPending = useAppSelector(
+        usersSlice.selectors.selectIsFetchUsersPending,
+    );
 
     useEffect(() => {
-        api.getUsers().then(users => console.log(users));
-    }, []);
+        const isIdle = usersSlice.selectors.selectIsFetchUsersIdle(
+            appStore.getState(),
+        );
+        if (!isIdle) {
+            return;
+        }
+        dispatch(usersSlice.actions.fetchUsersPending());
+
+        api.getUsers()
+            .then(users => {
+                dispatch(usersSlice.actions.fetchUsersSuccess({ users }));
+            })
+            .catch(() => {
+                dispatch(usersSlice.actions.fetchUsersFailed());
+            });
+    }, [dispatch, appStore]);
 
     const sortedUsers = useAppSelector(state =>
         usersSlice.selectors.selectSortedUsers(state, sortType),
@@ -17,6 +38,10 @@ export function UsersList() {
     const selectedUserId = useAppSelector(
         usersSlice.selectors.selectSelectedUserId,
     );
+
+    if (isPending) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="wrapper">
