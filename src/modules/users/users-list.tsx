@@ -1,12 +1,11 @@
 import { memo, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector, useAppStore } from '../../store';
 import { UserId, usersSlice } from './users.slice';
-import { useDispatch } from 'react-redux';
 import { fetchUsers } from './model/fetch-users';
 
 export function UsersList() {
     const [sortType, setSortType] = useState<'asc' | 'desc'>('asc');
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const appStore = useAppStore();
 
     const isPending = useAppSelector(
@@ -14,7 +13,7 @@ export function UsersList() {
     );
 
     useEffect(() => {
-        fetchUsers(appStore.dispatch, appStore.getState);
+        dispatch(fetchUsers());
     }, [dispatch, appStore]);
 
     const sortedUsers = useAppSelector(state =>
