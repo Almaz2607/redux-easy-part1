@@ -12,7 +12,7 @@ export const usersApi = baseApi.injectEndpoints({
     endpoints: create => ({
         getUsers: create.query<User[], void>({
             query: () => '/users',
-            providesTags: ['Users'],
+            providesTags: ['Users', { type: 'Users', id: 'LIST' }],
             transformResponse: (res: unknown) =>
                 UserDtoSchema.array().parse(res),
         }),
@@ -23,7 +23,6 @@ export const usersApi = baseApi.injectEndpoints({
         }),
         deleteUser: create.mutation<void, UserId>({
             query: userId => ({ method: 'DELETE', url: `/users/${userId}` }),
-            invalidatesTags: ['Users'],
         }),
     }),
     overrideExisting: true,
