@@ -18,11 +18,12 @@ export function UserInfo() {
         navigate('..', { relative: 'path' });
     };
 
-    const handlDeleteButtonClick = () => {
+    const handlDeleteButtonClick = async () => {
         if (!id) {
             return;
         }
-        deleteUser(id);
+        await deleteUser(id);
+        navigate('..', { relative: 'path' });
     };
 
     if (isLoadingUser || !user) {
